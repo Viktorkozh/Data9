@@ -3,16 +3,22 @@
 
 # 9
 # С использованием многопоточности для заданного значения x найти сумму ряда S
-# с точностью члена ряда по абсолютному значению e=10^-7 и произвести 
-# сравнение полученной суммы с контрольным значением функции y для двух 
+# с точностью члена ряда по абсолютному значению e=10^-7 и произвести
+# сравнение полученной суммы с контрольным значением функции y для двух
 # бесконечных рядов.
 # Варианты 16 и 17
 
 import math
 from threading import Thread, Lock
+from functools import lru_cache
 
 epsilon = 1e-7
 lock = Lock()
+
+
+@lru_cache(maxsize=None)
+def power(x, n):
+    return x**n
 
 
 def func(x, result):
@@ -24,7 +30,7 @@ def func(x, result):
         sum += term
         n += 1
         factor *= n
-        term = (-1)**n * x**(2 * n) / factor
+        term = (-1)**n * power(x, 2 * n) / factor
     with lock:
         result.append(sum)
 
@@ -33,7 +39,7 @@ def func2(x, result):
     sum = 0
     n = 1
     while True:
-        term = 1 / (2 * n - 1) * ((x - 1) / (x + 1))**(2 * n - 1)
+        term = 1 / (2 * n - 1) * power((x - 1) / (x + 1), (2 * n - 1))
         if abs(term) < epsilon:
             break
         else:
