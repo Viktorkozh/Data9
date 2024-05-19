@@ -10,15 +10,9 @@
 
 import math
 from threading import Thread, Lock
-from functools import lru_cache
 
 epsilon = 1e-7
 lock = Lock()
-
-
-@lru_cache(maxsize=None)
-def power(x, n):
-    return x**n
 
 
 def func(x, result):
@@ -26,11 +20,13 @@ def func(x, result):
     n = 0
     term = 1
     factor = 1
+    x_pown = 1
     while abs(term) > epsilon:
         sum += term
         n += 1
         factor *= n
-        term = (-1)**n * power(x, 2 * n) / factor
+        x_pown *= x ** 2
+        term = (-1)**n * x_pown / factor
     with lock:
         result.append(sum)
 
@@ -38,8 +34,11 @@ def func(x, result):
 def func2(x, result):
     sum = 0
     n = 1
+    x_pown = (x - 1) / (x + 1)
+    x_term = x_pown
     while True:
-        term = 1 / (2 * n - 1) * power((x - 1) / (x + 1), (2 * n - 1))
+        term = 1 / (2 * n - 1) * x_pown
+        x_pown *= x_term**2
         if abs(term) < epsilon:
             break
         else:
